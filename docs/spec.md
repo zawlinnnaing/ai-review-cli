@@ -651,6 +651,26 @@ ai-review post-comments https://gitlab.com/group/repo/-/merge_requests/123 \
 
 ---
 
+# Agent Skills
+
+## Claude Code Custom Command — `review-mr`
+
+A Claude Code slash command is provided at `.claude/commands/review-mr.md`. Invoking `/review-mr [MR_URL]` inside Claude Code triggers the full review workflow automatically:
+
+1. Checks that `ai-review` CLI is installed.
+2. Verifies GitLab credentials exist in `~/.ai-review/credentials.json`; prompts user to run `ai-review configure gitlab` if not.
+3. Asks for the MR URL if not passed as an argument.
+4. Runs `ai-review get-context <url>` → writes `~/.ai-review/mr-context.json`.
+5. Reads the context, analyses all changed files, and writes `~/.ai-review/review-output.json` containing structured `ReviewComment[]`.
+6. Validates the output with `ai-review validate-output ~/.ai-review/review-output.json`.
+7. Prints a summary of findings grouped by severity.
+8. Asks the user whether to post comments to GitLab and which minimum severity to use (`suggestion` / `warning` / `critical`).
+9. Runs `ai-review post-comments <url> --input ~/.ai-review/review-output.json --severity <level>` if the user confirms.
+
+All intermediate files are stored under `~/.ai-review/` and are overwritten on subsequent runs against the same MR.
+
+---
+
 # Phase 1–3 Deliverables
 
 ## Phase 1
