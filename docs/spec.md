@@ -86,15 +86,15 @@ This spec covers **Phase 1–3**.
 # Project Structure
 
 ```
-ai-review/
+ai-review-cli/
  ├─ src/
  │   ├─ cli/
  │   │   ├─ index.ts
- │   │   ├─ commands/
- │   │   │   ├─ configure.ts
- │   │   │   ├─ get-context.ts
- │   │   │   ├─ post-comments.ts
- │   │   │   └─ validate-output.ts
+ │   │   └─ commands/
+ │   │       ├─ configure.ts          # Phase 1
+ │   │       ├─ get-context.ts        # Phase 1
+ │   │       ├─ validate-output.ts    # Phase 2
+ │   │       └─ post-comments.ts      # Phase 3
  │   │
  │   ├─ providers/
  │   │   ├─ base.ts
@@ -107,13 +107,14 @@ ai-review/
  │   │   └─ diff-parser.ts
  │   │
  │   ├─ schema/
- │   │   ├─ review-output.schema.ts
- │   │   └─ mr-context.schema.ts
+ │   │   ├─ mr-context.schema.ts      # Phase 1
+ │   │   └─ review-output.schema.ts   # Phase 2
  │   │
  │   └─ utils/
  │       └─ credentials.ts
  │
  ├─ package.json
+ ├─ .prettierrc
  └─ README.md
 ```
 
@@ -140,11 +141,14 @@ ai-review/
 ai-review configure gitlab
 ```
 
-Interactive prompt:
+Interactive prompts:
 
 ```
 Enter GitLab Personal Access Token:
+Enter GitLab base URL [https://gitlab.com]:
 ```
+
+The base URL defaults to `https://gitlab.com` if left blank. The domain is extracted from the URL and used as the key in the credentials file.
 
 Stored at:
 
@@ -182,17 +186,17 @@ correct credentials from `~/.ai-review/credentials.json`.
 
 #### Output destination flags
 
-| Flag                    | Behaviour                                                                            |
-| ----------------------- | ------------------------------------------------------------------------------------ |
-| _(none)_                | Writes JSON to `ai-review-output/review.json` (relative to cwd); logs path to stderr |
-| `--stdout`              | Prints JSON to stdout                                                                |
-| `--output <path>`       | Writes JSON to the specified path; logs path to stderr                               |
-| `--output` + `--stdout` | `--output` takes precedence                                                          |
+| Flag                    | Behaviour                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------- |
+| _(none)_                | Writes JSON to `ai-review-output/context.json` (relative to cwd); logs path to stdout |
+| `--stdout`              | Prints JSON to stdout                                                                 |
+| `--output <path>`       | Writes JSON to the specified path; logs path to stdout                                |
+| `--output` + `--stdout` | `--output` takes precedence                                                           |
 
 Examples:
 
 ```bash
-# Default — writes to ai-review-output/review.json
+# Default — writes to ai-review-output/context.json
 ai-review get-context https://gitlab.com/group/repo/-/merge_requests/123
 
 # Stdout (suitable for piping or direct agent consumption)
@@ -211,8 +215,16 @@ Output:
 {
   "title": "...",
   "description": "...",
+  "sourceBranch": "...",
+  "targetBranch": "...",
   "files": [...]
 }
+```
+
+Expected MR URL format:
+
+```
+https://<host>/<namespace>/<repo>/-/merge_requests/<iid>
 ```
 
 This output is consumed by AI agents.
@@ -324,11 +336,21 @@ Endpoints used:
 GET /projects/:id/merge_requests/:iid
 ```
 
-### MR changes
+### MR diffs (paginated)
 
 ```
-GET /projects/:id/merge_requests/:iid/changes
+GET /projects/:id/merge_requests/:iid/diffs?page=N&per_page=20
 ```
+
+Paginated using the `x-next-page` response header. All pages are fetched and merged into a single list.
+
+### File content (large-file fallback)
+
+```
+GET /projects/:id/repository/files/:file_path/raw?ref=<branch>
+```
+
+Used when GitLab marks a diff as `too_large`. The raw content is fetched from both source and target branches, and a unified diff is generated client-side using the `diff` library.
 
 ### Post discussion
 
@@ -342,9 +364,11 @@ POST /projects/:id/merge_requests/:iid/discussions
 
 ## Responsibilities
 
-- Fetch MR metadata
-- Fetch file diffs
-- Filter binary files
+- Fetch MR metadata and file diffs in parallel (`Promise.all`)
+- Handle large-file fallback (GitLab `too_large` flag)
+- Filter binary files, large diffs, and lock files
+- Detect language for each file
+- Annotate diff lines with line numbers for LLM accuracy
 - Normalize structure for LLM usage
 
 ---
@@ -375,13 +399,35 @@ export interface FileDiff {
 
 ---
 
+## Language Detection
+
+`detectLanguage(filePath)` maps file extensions to language identifiers. Covers 51+ languages including TypeScript, JavaScript, Python, Go, Ruby, Java, Kotlin, Rust, PHP, Bash, YAML, JSON, SQL, HTML, CSS, Terraform, Elixir, and more.
+
+Special-cased exact filenames: `Dockerfile`, `Makefile`, `.gitignore`, `.env*`.
+
+---
+
+## Diff Annotation
+
+`annotateDiffWithLineNumbers(diff)` prefixes every diff line with `[oldLine:newLine]` markers so LLMs can reference exact line positions when writing inline comments.
+
+| Line type    | Annotation format   |
+| ------------ | ------------------- |
+| Deleted line | `[oldLine:-] -...`  |
+| Added line   | `[-:newLine] +...`  |
+| Context line | `[oldLine:newLine] ` |
+
+Hunk headers and file header lines (`---`, `+++`, `diff`, `index`, etc.) are passed through unchanged.
+
+---
+
 ## Filtering Rules (Phase 1)
 
 Exclude:
 
-- Binary files
-- Large files (>200KB diff)
-- Lock files
+- **Binary files** — detected by an empty diff with no `new_file`, `deleted_file`, or `renamed_file` flag
+- **Large diffs** — diff content exceeding 200 KB (after large-file fallback is applied)
+- **Lock files** — `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Gemfile.lock`, `Pipfile.lock`, `poetry.lock`, `composer.lock`, `go.sum`
 
 ---
 
@@ -552,12 +598,12 @@ Help me review this MR 123
 ## Step 2 — Agent calls CLI
 
 ```
-ai-review get-context https://gitlab.com/group/repo/-/merge_requests/123 --stdout
+ai-review get-context https://gitlab.com/group/repo/-/merge_requests/123
 ```
 
 The domain (`gitlab.com`) is used to select the correct credentials automatically.
 Use `--stdout` when the agent reads the JSON directly from stdout, or omit the flag
-to have the output saved to `ai-review-output/review.json`.
+to have the output saved to `ai-review-output/context.json`.
 
 ---
 
