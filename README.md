@@ -109,6 +109,9 @@ Validates the agent's output against the review schema before posting. Exits wit
 
 ```bash
 ai-review post-comments "<MR_URL>" --input review.json
+
+# Post only warnings and criticals
+ai-review post-comments "<MR_URL>" --input review.json --severity warning
 ```
 
 Posts each comment from the validated review JSON as an inline discussion on the GitLab MR.
@@ -274,7 +277,7 @@ On failure, prints a structured error to stderr and exits with code 1:
 ### Post review comments
 
 ```bash
-ai-review post-comments <MR_URL> --input <file>
+ai-review post-comments <MR_URL> --input <file> [--severity <level>]
 ```
 
 Reads and validates the review JSON, then posts each comment as an inline discussion thread on the GitLab MR. The MR URL is parsed to resolve the domain, project path, and MR IID; credentials are selected automatically based on the URL's domain.
@@ -282,18 +285,31 @@ Reads and validates the review JSON, then posts each comment as an inline discus
 ```bash
 ai-review post-comments https://gitlab.com/group/repo/-/merge_requests/123 --input review.json
 
+# Post only warnings and criticals
+ai-review post-comments https://gitlab.com/group/repo/-/merge_requests/123 --input review.json --severity warning
+
 # Self-hosted instance
 ai-review post-comments https://gitlab.mycompany.com/group/repo/-/merge_requests/456 --input review.json
 ```
 
-| Option          | Description                            |
-| --------------- | -------------------------------------- |
-| `--input <file>` | Path to the review JSON file (required) |
+| Option             | Description                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------- |
+| `--input <file>`   | Path to the review JSON file (required)                                                                 |
+| `--severity <level>` | Minimum severity to post: `suggestion` \| `warning` \| `critical`. Omit to post all comments.        |
+
+**Severity filter** — when `--severity` is set, only comments at or above the specified level are posted:
+
+| `--severity` value | Comments posted            |
+| ------------------ | -------------------------- |
+| `suggestion`       | suggestion, warning, critical |
+| `warning`          | warning, critical          |
+| `critical`         | critical only              |
 
 On success, prints a summary to stdout:
 
 ```
 Posted 5 comments to MR.
+Posted 3 comments to MR. (2 skipped below --severity warning)
 ```
 
 On failure, prints a structured error to stderr and exits with code 1:

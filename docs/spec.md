@@ -245,11 +245,32 @@ Ensures output follows schema before posting.
 
 ```bash
 ai-review post-comments <MR_URL> \
-  --input review.json
+  --input review.json \
+  [--severity <level>]
 ```
 
 The MR URL is parsed to resolve the domain, project path, and MR IID, and
 credentials are selected automatically based on the URL's domain.
+
+#### Severity filter
+
+The optional `--severity` flag sets the minimum severity level of comments to post.
+Comments below the specified threshold are silently skipped. The severity levels in
+ascending order are:
+
+| Level        | Posts                              |
+| ------------ | ---------------------------------- |
+| `suggestion` | suggestion, warning, critical      |
+| `warning`    | warning, critical                  |
+| `critical`   | critical only                      |
+
+If `--severity` is omitted, all comments are posted regardless of severity.
+
+When comments are skipped the success message includes a count:
+
+```
+Posted 3 comments to MR. (2 skipped below --severity warning)
+```
 
 ---
 
@@ -622,6 +643,10 @@ review.json
 ```
 ai-review post-comments https://gitlab.com/group/repo/-/merge_requests/123 \
   --input review.json
+
+# Post only warnings and criticals
+ai-review post-comments https://gitlab.com/group/repo/-/merge_requests/123 \
+  --input review.json --severity warning
 ```
 
 ---
