@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. Always update `docs/spec.md` to the latest code behaviour.
 
 ## Commands
 
@@ -38,6 +38,7 @@ The CLI is built with **commander** and structured around a provider abstraction
 ### Error output convention
 
 All errors are printed as structured JSON to stderr:
+
 ```json
 { "error": "ERROR_CODE", "message": "human-readable detail" }
 ```
@@ -45,11 +46,15 @@ All errors are printed as structured JSON to stderr:
 ### Credentials file
 
 `~/.ai-review/credentials.json` is keyed by hostname, supporting multiple GitLab instances simultaneously:
+
 ```json
 {
   "gitlab": {
-    "gitlab.com":           { "token": "...", "baseUrl": "https://gitlab.com" },
-    "gitlab.mycompany.com": { "token": "...", "baseUrl": "https://gitlab.mycompany.com" }
+    "gitlab.com": { "token": "...", "baseUrl": "https://gitlab.com" },
+    "gitlab.mycompany.com": {
+      "token": "...",
+      "baseUrl": "https://gitlab.mycompany.com"
+    }
   }
 }
 ```
