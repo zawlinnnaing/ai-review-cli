@@ -1,7 +1,7 @@
 import { GitProvider, MergeRequest, FileDiff, ReviewComment } from '../base';
 import { createTwoFilesPatch } from 'diff';
 import { GitLabClient } from './gitlab-client';
-import { detectLanguage } from '../../context/diff-parser';
+import { detectLanguage, annotateDiffWithLineNumbers } from '../../context/diff-parser';
 
 interface RawMergeRequest {
   id: number;
@@ -94,7 +94,7 @@ export class GitLabProvider implements GitProvider {
       .map((change) => ({
         path: change.new_path ?? change.old_path,
         language: detectLanguage(change.new_path ?? change.old_path),
-        diff: change.diff ?? '',
+        diff: annotateDiffWithLineNumbers(change.diff ?? ''),
       }));
   }
 
