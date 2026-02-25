@@ -66,7 +66,7 @@ export function registerGetContextCommand(program: Command): void {
 
         // Determine output destination:
         // --output takes precedence over --stdout.
-        // If neither is provided, default to ai-review-output/review.json.
+        // If neither is provided, default to ai-review-output/context.json.
         if (options.output) {
           const outputPath = path.resolve(options.output);
           fs.mkdirSync(path.dirname(outputPath), { recursive: true });
@@ -75,7 +75,7 @@ export function registerGetContextCommand(program: Command): void {
         } else if (options.stdout) {
           console.log(json);
         } else {
-          const outputPath = path.resolve('ai-review-output', 'review.json');
+          const outputPath = path.resolve('ai-review-output', 'context.json');
           fs.mkdirSync(path.dirname(outputPath), { recursive: true });
           fs.writeFileSync(outputPath, json, 'utf-8');
           console.log(`Output written to: ${outputPath}`);
