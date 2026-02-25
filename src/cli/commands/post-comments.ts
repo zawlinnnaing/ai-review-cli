@@ -121,7 +121,11 @@ export function registerPostCommentsCommand(program: Command): void {
           credentials.token,
         );
 
-        await provider.postReviewComments(projectPath, mrIid, comments);
+        const prefixedComments = comments.map((c) => ({
+          ...c,
+          comment: `[From AI] ${c.comment}`,
+        }));
+        await provider.postReviewComments(projectPath, mrIid, prefixedComments);
         const skipped = allComments.length - comments.length;
         const skippedNote =
           skipped > 0 ? ` (${skipped} skipped below --severity ${options.severity})` : '';
