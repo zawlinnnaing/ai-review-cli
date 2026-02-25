@@ -10,11 +10,13 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
     - [Step 2 — Fetch MR context](#step-2--fetch-mr-context)
     - [Step 3 — Review with your AI agent](#step-3--review-with-your-ai-agent)
     - [Step 4 — Validate the review output](#step-4--validate-the-review-output)
+    - [Step 5 — Post comments to the MR](#step-5--post-comments-to-the-mr)
     - [How it works end-to-end](#how-it-works-end-to-end)
   - [Commands](#commands)
     - [Configure GitLab credentials](#configure-gitlab-credentials)
     - [Fetch MR context](#fetch-mr-context)
     - [Validate review output](#validate-review-output)
+    - [Post review comments](#post-review-comments)
   - [Project structure](#project-structure)
   - [Roadmap](#roadmap)
 
@@ -103,6 +105,14 @@ ai-review validate-output review.json
 
 Validates the agent's output against the review schema before posting. Exits with code 1 and a structured error if the output is malformed.
 
+### Step 5 — Post comments to the MR
+
+```bash
+ai-review post-comments "<MR_URL>" --input review.json
+```
+
+Posts each comment from the validated review JSON as an inline discussion on the GitLab MR.
+
 ---
 
 ### How it works end-to-end
@@ -121,7 +131,10 @@ AI Agent  (runs code review → writes review.json)
     │  ai-review validate-output review.json
     ▼
 ai-review CLI  (schema validation)
-    │  structured feedback (validated)
+    │  ai-review post-comments <MR_URL> --input review.json
+    ▼
+ai-review CLI   ──►  GitLab API  (posts inline discussions)
+    │  success summary
     ▼
 You
 ```
@@ -258,6 +271,39 @@ On failure, prints a structured error to stderr and exits with code 1:
 
 ---
 
+### Post review comments
+
+```bash
+ai-review post-comments <MR_URL> --input <file>
+```
+
+Reads and validates the review JSON, then posts each comment as an inline discussion thread on the GitLab MR. The MR URL is parsed to resolve the domain, project path, and MR IID; credentials are selected automatically based on the URL's domain.
+
+```bash
+ai-review post-comments https://gitlab.com/group/repo/-/merge_requests/123 --input review.json
+
+# Self-hosted instance
+ai-review post-comments https://gitlab.mycompany.com/group/repo/-/merge_requests/456 --input review.json
+```
+
+| Option          | Description                            |
+| --------------- | -------------------------------------- |
+| `--input <file>` | Path to the review JSON file (required) |
+
+On success, prints a summary to stdout:
+
+```
+Posted 5 comments to MR.
+```
+
+On failure, prints a structured error to stderr and exits with code 1:
+
+```json
+{ "error": "POST_FAILED", "message": "Request failed with status code 422" }
+```
+
+---
+
 ## Project structure
 
 ```
@@ -268,6 +314,7 @@ src/
       configure.ts            # `configure gitlab`
       get-context.ts          # `get-context`
       validate-output.ts      # `validate-output`
+      post-comments.ts        # `post-comments`
   providers/
     base.ts                   # GitProvider interface
     gitlab/
@@ -291,5 +338,5 @@ src/
 | ----- | ------------------------------------- | ----------- |
 | 1     | MR Context Fetch CLI                  | ✅ Complete |
 | 2     | Prompt + Structured Output Validation | ✅ Complete |
-| 3     | Comment Publisher                     | Planned     |
+| 3     | Comment Publisher                     | ✅ Complete |
 | 4     | MCP Server                            | Future      |

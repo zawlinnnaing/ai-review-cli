@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { registerConfigureCommand } from './commands/configure';
 import { registerGetContextCommand } from './commands/get-context';
 import { registerValidateOutputCommand } from './commands/validate-output';
+import { registerPostCommentsCommand } from './commands/post-comments';
 
 const program = new Command();
 
@@ -17,5 +18,6 @@ program
 registerConfigureCommand(program);
 registerGetContextCommand(program);
 registerValidateOutputCommand(program);
+registerPostCommentsCommand(program);
 
 program.parse(process.argv);

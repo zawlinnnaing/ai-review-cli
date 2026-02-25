@@ -10,6 +10,11 @@ interface RawMergeRequest {
   description: string | null;
   source_branch: string;
   target_branch: string;
+  diff_refs?: {
+    base_sha: string;
+    head_sha: string;
+    start_sha: string;
+  };
 }
 
 interface RawChange {
@@ -103,12 +108,29 @@ export class GitLabProvider implements GitProvider {
     mrId: string,
     comments: ReviewComment[],
   ): Promise<void> {
+    const rawMr = (await this.client.getMergeRequest(
+      projectId,
+      mrId,
+    )) as RawMergeRequest;
+    const diffRefs = rawMr.diff_refs;
+
     for (const comment of comments) {
-      await this.client.postDiscussion(projectId, mrId, comment.comment, {
+      const position: Record<string, unknown> = {
         position_type: 'text',
         new_path: comment.file,
         new_line: comment.line,
-      });
+      };
+      if (diffRefs) {
+        position.base_sha = diffRefs.base_sha;
+        position.head_sha = diffRefs.head_sha;
+        position.start_sha = diffRefs.start_sha;
+      }
+      await this.client.postDiscussion(
+        projectId,
+        mrId,
+        comment.comment,
+        position,
+      );
     }
   }
 }

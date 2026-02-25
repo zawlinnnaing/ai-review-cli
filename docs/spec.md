@@ -62,7 +62,7 @@ Agent Tool Discovery
 | ---------------- | ------------------------------------- |
 | Phase 1 ✅        | MR Context Fetch CLI                  |
 | Phase 2 ✅        | Prompt + Structured Output Validation |
-| Phase 3          | Comment Publisher                     |
+| Phase 3 ✅        | Comment Publisher                     |
 | Phase 4 (future) | MCP Server                            |
 
 This spec covers **Phase 1–3**.
@@ -641,4 +641,5 @@ ai-review post-comments https://gitlab.com/group/repo/-/merge_requests/123 \
 
 ## Phase 3
 
-- Comment publisher
+- `src/cli/commands/post-comments.ts` — `post-comments` command
+- `postReviewComments` implemented in `GitLabProvider` with `diff_refs` SHAs for inline positioning
