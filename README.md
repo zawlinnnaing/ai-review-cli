@@ -4,7 +4,9 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
 
 - [ai-review CLI](#ai-review-cli)
   - [Requirements](#requirements)
-  - [Setup](#setup)
+  - [Installation](#installation)
+    - [Option A — Install from GitLab URL (recommended)](#option-a--install-from-gitlab-url-recommended)
+    - [Option B — Local development](#option-b--local-development)
   - [Usage](#usage)
     - [Step 1 — Configure credentials (one-time)](#step-1--configure-credentials-one-time)
     - [Step 2 — Fetch MR context](#step-2--fetch-mr-context)
@@ -24,7 +26,19 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
 
 - Node.js 20+
 
-## Setup
+## Installation
+
+### Option A — Install from GitLab URL (recommended)
+
+No build step required on your machine. npm clones the repo and compiles TypeScript automatically via the `prepare` script.
+
+```bash
+npm install -g git+https://GITLAB_HOST/GROUP/ai-review-cli.git
+```
+
+### Option B — Local development
+
+Clone the repo and link it globally:
 
 ```bash
 npm install
@@ -32,21 +46,13 @@ npm run build
 npm link        # makes `ai-review` available globally
 ```
 
-Alternatively, install as a global npm package:
-
-```bash
-npm install
-npm run build
-npm install -g .   # installs `ai-review` globally via npm
-```
-
-To uninstall the global package later:
+To uninstall:
 
 ```bash
 npm uninstall -g ai-review-cli
 ```
 
-Or run directly without building:
+Run directly without building:
 
 ```bash
 npx tsx src/cli/index.ts <command>
@@ -185,12 +191,12 @@ ai-review get-context <MR_URL> [--stdout] [--output <path>]
 Pass the full GitLab Merge Request URL — works for both `gitlab.com` and self-hosted instances.
 The correct credentials are selected automatically based on the URL's domain.
 
-| Flag                    | Behaviour                                                                   |
-| ----------------------- | --------------------------------------------------------------------------- |
-| _(none)_                | Writes JSON to `~/.ai-review/mr-context.json` and logs the path to stderr   |
-| `--stdout`              | Prints JSON to stdout                                                       |
-| `--output <path>`       | Writes JSON to the specified path and logs it to stderr                     |
-| `--output` + `--stdout` | `--output` takes precedence; writes to the specified path                   |
+| Flag                    | Behaviour                                                                 |
+| ----------------------- | ------------------------------------------------------------------------- |
+| _(none)_                | Writes JSON to `~/.ai-review/mr-context.json` and logs the path to stderr |
+| `--stdout`              | Prints JSON to stdout                                                     |
+| `--output <path>`       | Writes JSON to the specified path and logs it to stderr                   |
+| `--output` + `--stdout` | `--output` takes precedence; writes to the specified path                 |
 
 ```bash
 # Default — writes to ~/.ai-review/mr-context.json
@@ -253,12 +259,12 @@ Expected input schema:
 }
 ```
 
-| Field      | Type                                          | Description                     |
-| ---------- | --------------------------------------------- | ------------------------------- |
-| `file`     | `string`                                      | File path relative to repo root |
-| `line`     | `number`                                      | Line number in the new file     |
-| `severity` | `"critical" \| "warning" \| "suggestion"`     | Severity level of the comment   |
-| `comment`  | `string`                                      | The review comment text         |
+| Field      | Type                                      | Description                     |
+| ---------- | ----------------------------------------- | ------------------------------- |
+| `file`     | `string`                                  | File path relative to repo root |
+| `line`     | `number`                                  | Line number in the new file     |
+| `severity` | `"critical" \| "warning" \| "suggestion"` | Severity level of the comment   |
+| `comment`  | `string`                                  | The review comment text         |
 
 On success, prints a summary to stdout:
 
@@ -269,7 +275,10 @@ Valid review output: 5 comments
 On failure, prints a structured error to stderr and exits with code 1:
 
 ```json
-{ "error": "INVALID_SCHEMA", "message": "comments.0.severity: Invalid enum value..." }
+{
+  "error": "INVALID_SCHEMA",
+  "message": "comments.0.severity: Invalid enum value..."
+}
 ```
 
 ---
@@ -292,18 +301,18 @@ ai-review post-comments https://gitlab.com/group/repo/-/merge_requests/123 --inp
 ai-review post-comments https://gitlab.mycompany.com/group/repo/-/merge_requests/456 --input review.json
 ```
 
-| Option             | Description                                                                                             |
-| ------------------ | ------------------------------------------------------------------------------------------------------- |
-| `--input <file>`   | Path to the review JSON file (required)                                                                 |
-| `--severity <level>` | Minimum severity to post: `suggestion` \| `warning` \| `critical`. Omit to post all comments.        |
+| Option               | Description                                                                                   |
+| -------------------- | --------------------------------------------------------------------------------------------- |
+| `--input <file>`     | Path to the review JSON file (required)                                                       |
+| `--severity <level>` | Minimum severity to post: `suggestion` \| `warning` \| `critical`. Omit to post all comments. |
 
 **Severity filter** — when `--severity` is set, only comments at or above the specified level are posted:
 
-| `--severity` value | Comments posted            |
-| ------------------ | -------------------------- |
+| `--severity` value | Comments posted               |
+| ------------------ | ----------------------------- |
 | `suggestion`       | suggestion, warning, critical |
-| `warning`          | warning, critical          |
-| `critical`         | critical only              |
+| `warning`          | warning, critical             |
+| `critical`         | critical only                 |
 
 On success, prints a summary to stdout:
 

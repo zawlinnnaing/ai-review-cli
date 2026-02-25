@@ -1,0 +1,65 @@
+stages:
+  - build
+  - publish
+
+# ─── Build & Validate ───────────────────────────────────────────────────────
+
+build:
+  stage: build
+  image: node:20-alpine
+  script:
+    - npm ci
+    - npm run lint
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 hour
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - node_modules/
+
+# ─── Publish to GitLab Package Registry ────────────────────────────────────
+#
+# Publishes @NAMESPACE/ai-review-cli to the project's npm Package Registry.
+#
+# Install directly from the Git repo URL (no registry auth needed):
+#   npm install git+https://GITLAB_HOST/GROUP/ai-review-cli.git
+#
+# Bump the version in package.json before merging to main to trigger
+# a new release; re-publishing the same version is silently skipped.
+
+publish:
+  stage: publish
+  image: node:20-alpine
+  needs:
+    - build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  script:
+    # Scope the package name to the GitLab namespace for the registry
+    - |
+      node -e "
+        const fs = require('fs');
+        const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+        pkg.name = '@${CI_PROJECT_NAMESPACE}/' + pkg.name.replace(/^@[^/]+\//, '');
+        fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+        console.log('Publishing as', pkg.name, 'v' + pkg.version);
+      "
+    # Authenticate with the built-in CI job token (no extra secrets required)
+    - |
+      {
+        echo "@${CI_PROJECT_NAMESPACE}:registry=https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/"
+        echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}"
+      } >> .npmrc
+    # Publish; silently succeed if this version was already published
+    - |
+      npm publish --ignore-scripts 2>&1 | tee /tmp/npm_publish.log; RC=${PIPESTATUS[0]}
+      if [ "$RC" -ne 0 ]; then
+        grep -qi "already been published\|already exists\|403\|409" /tmp/npm_publish.log \
+          && echo "Version already published – skipping." \
+          || { cat /tmp/npm_publish.log; exit 1; }
+      fi

@@ -60,9 +60,9 @@ Agent Tool Discovery
 
 | Phase            | Scope                                 |
 | ---------------- | ------------------------------------- |
-| Phase 1 ✅        | MR Context Fetch CLI                  |
-| Phase 2 ✅        | Prompt + Structured Output Validation |
-| Phase 3 ✅        | Comment Publisher                     |
+| Phase 1 ✅       | MR Context Fetch CLI                  |
+| Phase 2 ✅       | Prompt + Structured Output Validation |
+| Phase 3 ✅       | Comment Publisher                     |
 | Phase 4 (future) | MCP Server                            |
 
 This spec covers **Phase 1–3**.
@@ -258,11 +258,11 @@ The optional `--severity` flag sets the minimum severity level of comments to po
 Comments below the specified threshold are silently skipped. The severity levels in
 ascending order are:
 
-| Level        | Posts                              |
-| ------------ | ---------------------------------- |
-| `suggestion` | suggestion, warning, critical      |
-| `warning`    | warning, critical                  |
-| `critical`   | critical only                      |
+| Level        | Posts                         |
+| ------------ | ----------------------------- |
+| `suggestion` | suggestion, warning, critical |
+| `warning`    | warning, critical             |
+| `critical`   | critical only                 |
 
 If `--severity` is omitted, all comments are posted regardless of severity.
 
@@ -432,10 +432,10 @@ Special-cased exact filenames: `Dockerfile`, `Makefile`, `.gitignore`, `.env*`.
 
 `annotateDiffWithLineNumbers(diff)` prefixes every diff line with `[oldLine:newLine]` markers so LLMs can reference exact line positions when writing inline comments.
 
-| Line type    | Annotation format   |
-| ------------ | ------------------- |
-| Deleted line | `[oldLine:-] -...`  |
-| Added line   | `[-:newLine] +...`  |
+| Line type    | Annotation format    |
+| ------------ | -------------------- |
+| Deleted line | `[oldLine:-] -...`   |
+| Added line   | `[-:newLine] +...`   |
 | Context line | `[oldLine:newLine] ` |
 
 Hunk headers and file header lines (`---`, `+++`, `diff`, `index`, etc.) are passed through unchanged.
@@ -668,6 +668,43 @@ A Claude Code slash command is provided at `.claude/commands/review-mr.md`. Invo
 9. Runs `ai-review post-comments <url> --input ~/.ai-review/review-output.json --severity <level>` if the user confirms.
 
 All intermediate files are stored under `~/.ai-review/` and are overwritten on subsequent runs against the same MR.
+
+---
+
+# CI / CD Pipeline
+
+A `.gitlab-ci.yml` is included in the repository root. It runs on every push and publishes a release on every merge to `main`.
+
+## Stages
+
+| Stage     | Trigger      | Description                                                   |
+| --------- | ------------ | ------------------------------------------------------------- |
+| `build`   | all branches | `npm ci` → `npm run lint` → `npm run build`                   |
+| `publish` | `main` only  | Publish `@NAMESPACE/ai-review-cli` to GitLab Package Registry |
+
+The `dist/` artifact produced by `build` is forwarded to `publish` via GitLab artifacts.
+Authentication uses the automatic `CI_JOB_TOKEN` — no extra secrets are required.
+
+## Versioning
+
+Bump the version in `package.json` before merging to `main` to cut a new release.
+Re-publishing the same version is treated as a no-op (the job succeeds with a skip message).
+
+---
+
+# Installation
+
+## Option A — Git URL (recommended, no auth required)
+
+Works for any public or private repo where the installer has read access.
+npm runs the `prepare` script automatically, which compiles TypeScript.
+
+```bash
+# Latest from main
+npm install -g git+https://GITLAB_HOST/GROUP/ai-review-cli.git
+```
+
+Node 20+ and npm 8+ are required on the installer's machine.
 
 ---
 
