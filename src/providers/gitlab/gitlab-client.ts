@@ -21,15 +21,46 @@ export class GitLabClient {
     return response.data;
   }
 
-  async getMergeRequestChanges(
+  async getMergeRequestDiffs(
     projectId: string,
     mrIid: string,
-  ): Promise<unknown> {
+  ): Promise<unknown[]> {
     const encodedProjectId = encodeURIComponent(projectId);
-    const response = await this.client.get(
-      `/projects/${encodedProjectId}/merge_requests/${mrIid}/changes`,
-    );
-    return response.data;
+    const allDiffs: unknown[] = [];
+    let page = 1;
+
+    while (true) {
+      const response = await this.client.get(
+        `/projects/${encodedProjectId}/merge_requests/${mrIid}/diffs`,
+        { params: { page, per_page: 20 } },
+      );
+      const diffs = response.data as unknown[];
+      allDiffs.push(...diffs);
+
+      const nextPage = response.headers['x-next-page'];
+      if (!nextPage) break;
+      page = parseInt(nextPage, 10);
+    }
+
+    return allDiffs;
+  }
+
+  async getFileContent(
+    projectId: string,
+    ref: string,
+    filePath: string,
+  ): Promise<string> {
+    const encodedProjectId = encodeURIComponent(projectId);
+    const encodedFilePath = encodeURIComponent(filePath);
+    try {
+      const response = await this.client.get(
+        `/projects/${encodedProjectId}/repository/files/${encodedFilePath}/raw`,
+        { params: { ref }, responseType: 'text' },
+      );
+      return response.data as string;
+    } catch {
+      return '';
+    }
   }
 
   async postDiscussion(

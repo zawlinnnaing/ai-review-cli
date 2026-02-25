@@ -182,12 +182,12 @@ correct credentials from `~/.ai-review/credentials.json`.
 
 #### Output destination flags
 
-| Flag | Behaviour |
-|------|-----------|
-| _(none)_ | Writes JSON to `ai-review-output/review.json` (relative to cwd); logs path to stderr |
-| `--stdout` | Prints JSON to stdout |
-| `--output <path>` | Writes JSON to the specified path; logs path to stderr |
-| `--output` + `--stdout` | `--output` takes precedence |
+| Flag                    | Behaviour                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| _(none)_                | Writes JSON to `ai-review-output/review.json` (relative to cwd); logs path to stderr |
+| `--stdout`              | Prints JSON to stdout                                                                |
+| `--output <path>`       | Writes JSON to the specified path; logs path to stderr                               |
+| `--output` + `--stdout` | `--output` takes precedence                                                          |
 
 Examples:
 
@@ -423,7 +423,7 @@ export const ReviewSchema = z.object({
     z.object({
       file: z.string(),
       line: z.number(),
-      severity: z.enum(["critical", "warning", "suggestion"]),
+      severity: z.enum(['critical', 'warning', 'suggestion']),
       comment: z.string(),
     }),
   ),

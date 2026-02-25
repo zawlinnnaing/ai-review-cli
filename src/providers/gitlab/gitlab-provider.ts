@@ -1,9 +1,5 @@
-import {
-  GitProvider,
-  MergeRequest,
-  FileDiff,
-  ReviewComment,
-} from '../base';
+import { GitProvider, MergeRequest, FileDiff, ReviewComment } from '../base';
+import { createTwoFilesPatch } from 'diff';
 import { GitLabClient } from './gitlab-client';
 import { detectLanguage } from '../../context/diff-parser';
 
@@ -23,11 +19,10 @@ interface RawChange {
   new_file: boolean;
   deleted_file: boolean;
   renamed_file: boolean;
+  too_large?: boolean;
 }
 
-interface RawChangesResponse {
-  changes: RawChange[];
-}
+// /diffs returns a flat array of RawChange objects (no wrapper object)
 
 export class GitLabProvider implements GitProvider {
   private client: GitLabClient;
@@ -59,12 +54,40 @@ export class GitLabProvider implements GitProvider {
     projectId: string,
     mrId: string,
   ): Promise<FileDiff[]> {
-    const raw = (await this.client.getMergeRequestChanges(
-      projectId,
-      mrId,
-    )) as RawChangesResponse;
+    const [rawMr, changes] = (await Promise.all([
+      this.client.getMergeRequest(projectId, mrId),
+      this.client.getMergeRequestDiffs(projectId, mrId),
+    ])) as [RawMergeRequest, RawChange[]];
 
-    const changes: RawChange[] = raw.changes ?? [];
+    // For files where GitLab truncated the diff due to size, fall back to fetching
+    // raw file content from both branches and computing the diff client-side.
+    const largeFallbacks = changes
+      .filter((c) => c.too_large && c.diff === '')
+      .map(async (change) => {
+        const [oldContent, newContent] = await Promise.all([
+          change.new_file
+            ? Promise.resolve('')
+            : this.client.getFileContent(
+                projectId,
+                rawMr.target_branch,
+                change.old_path,
+              ),
+          change.deleted_file
+            ? Promise.resolve('')
+            : this.client.getFileContent(
+                projectId,
+                rawMr.source_branch,
+                change.new_path,
+              ),
+        ]);
+        change.diff = createTwoFilesPatch(
+          change.old_path,
+          change.new_path,
+          oldContent,
+          newContent,
+        );
+      });
+    await Promise.all(largeFallbacks);
 
     return changes
       .filter((change) => !isBinaryOrExcluded(change))
@@ -81,16 +104,11 @@ export class GitLabProvider implements GitProvider {
     comments: ReviewComment[],
   ): Promise<void> {
     for (const comment of comments) {
-      await this.client.postDiscussion(
-        projectId,
-        mrId,
-        comment.comment,
-        {
-          position_type: 'text',
-          new_path: comment.file,
-          new_line: comment.line,
-        },
-      );
+      await this.client.postDiscussion(projectId, mrId, comment.comment, {
+        position_type: 'text',
+        new_path: comment.file,
+        new_line: comment.line,
+      });
     }
   }
 }

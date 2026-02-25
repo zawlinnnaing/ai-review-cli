@@ -23,7 +23,9 @@ export function registerConfigureCommand(program: Command): void {
 
   configure
     .command('gitlab')
-    .description('Configure GitLab credentials (stored at ~/.ai-review/credentials.json)')
+    .description(
+      'Configure GitLab credentials (stored at ~/.ai-review/credentials.json)',
+    )
     .action(async () => {
       try {
         const credentials = await loadCredentials();
@@ -68,11 +70,8 @@ export function registerConfigureCommand(program: Command): void {
         console.log(`  Base URL : ${baseUrl}`);
         console.log(`  Token    : ${token.slice(0, 8)}...`);
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : String(error);
-        console.error(
-          JSON.stringify({ error: 'CONFIGURE_FAILED', message }),
-        );
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(JSON.stringify({ error: 'CONFIGURE_FAILED', message }));
         process.exit(1);
       }
     });
