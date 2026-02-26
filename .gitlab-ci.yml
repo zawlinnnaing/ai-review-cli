@@ -1,6 +1,6 @@
 stages:
   - build
-  - release
+  # - release
 
 build:
   stage: build
@@ -27,28 +27,28 @@ build:
 # Required CI/CD variables (set in GitLab → Settings → CI/CD → Variables):
 #   GL_TOKEN   – GitLab personal/project access token with api + write_repository + packages scopes
 
-release:
-  stage: release
-  image: node:20-alpine
-  variables:
-    GIT_DEPTH: 0 # semantic-release needs the full git history
-  before_script:
-    - apk add --no-cache git
-    # Authenticate git pushes (used by @semantic-release/git to commit CHANGELOG)
-    - git config user.email "${GITLAB_USER_EMAIL:-ci@semantic-release}"
-    - git config user.name "${GITLAB_USER_NAME:-semantic-release}"
-    - git remote set-url origin "https://gitlab-ci-token:${GL_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
-    # Configure npm to publish to the GitLab Package Registry for this project
-    - echo "@sertiscorp:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/" >> .npmrc
-    - echo "${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${GL_TOKEN}" >> .npmrc
-  script:
-    - npm ci
-    - npx semantic-release
-  rules:
-    - if: $CI_COMMIT_BRANCH == "main"
-  cache:
-    key:
-      files:
-        - package-lock.json
-    paths:
-      - node_modules/
+# release:
+#   stage: release
+#   image: node:20-alpine
+#   variables:
+#     GIT_DEPTH: 0 # semantic-release needs the full git history
+#   before_script:
+#     - apk add --no-cache git
+#     # Authenticate git pushes (used by @semantic-release/git to commit CHANGELOG)
+#     - git config user.email "${GITLAB_USER_EMAIL:-ci@semantic-release}"
+#     - git config user.name "${GITLAB_USER_NAME:-semantic-release}"
+#     - git remote set-url origin "https://gitlab-ci-token:${GL_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
+#     # Configure npm to publish to the GitLab Package Registry for this project
+#     - echo "@sertiscorp:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/" >> .npmrc
+#     - echo "${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${GL_TOKEN}" >> .npmrc
+#   script:
+#     - npm ci
+#     - npx semantic-release
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == "main"
+#   cache:
+#     key:
+#       files:
+#         - package-lock.json
+#     paths:
+#       - node_modules/

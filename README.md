@@ -33,7 +33,7 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
 No build step required on your machine. npm clones the repo and compiles TypeScript automatically via the `prepare` script.
 
 ```bash
-npm install -g git+https://GITLAB_HOST/GROUP/ai-review-cli.git
+npm install -g git+https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli.git
 ```
 
 ### Option B — Local development
