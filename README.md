@@ -15,6 +15,7 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
     - [Step 5 — Post comments to the MR](#step-5--post-comments-to-the-mr)
     - [How it works end-to-end](#how-it-works-end-to-end)
   - [Commands](#commands)
+    - [Check CLI version](#check-cli-version)
     - [Configure GitLab credentials](#configure-gitlab-credentials)
     - [Fetch MR context](#fetch-mr-context)
     - [Validate review output](#validate-review-output)
@@ -158,6 +159,14 @@ You
 ---
 
 ## Commands
+
+### Check CLI version
+
+```bash
+ai-review --version
+```
+
+Prints the CLI version sourced from `package.json` so the flag stays in sync with releases.
 
 ### Configure GitLab credentials
 

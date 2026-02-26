@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. Always update `docs/spec.md` to the latest code behaviour.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. Update `docs/spec.md` to reflect the latest code architecture and specifications if necessary.
 
 ## Commands
 
