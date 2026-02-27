@@ -1,3 +1,9 @@
+## [1.0.5](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/compare/v1.0.4...v1.0.5) (2026-02-27)
+
+### Bug Fixes
+
+* **release:** add curl to before_script for semantic-release ([f7405ca](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/commit/f7405ca0faaf4df902822f880f501399eb548b83))
+
 ## [1.0.4](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/compare/v1.0.3...v1.0.4) (2026-02-27)
 
 ### Bug Fixes
