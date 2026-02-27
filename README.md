@@ -6,7 +6,8 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
   - [Requirements](#requirements)
   - [Installation](#installation)
     - [Option A — Install from GitLab Package Registry (recommended)](#option-a--install-from-gitlab-package-registry-recommended)
-    - [Option B — Local development](#option-b--local-development)
+    - [Option B — Download pre-built binary from GitLab release](#option-b--download-pre-built-binary-from-gitlab-release)
+    - [Option C — Local development](#option-c--local-development)
   - [Usage](#usage)
     - [Step 1 — Configure credentials (one-time)](#step-1--configure-credentials-one-time)
     - [Step 2 — Fetch MR context](#step-2--fetch-mr-context)
@@ -44,7 +45,66 @@ npm set //gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/
 npm install -g @sertiscorp/ai-review-cli
 ```
 
-### Option B — Local development
+### Option B — Download pre-built binary from GitLab release
+
+Pre-built binaries are published to the [GitLab releases page](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/-/releases) for every version tag. No Node.js required.
+
+Download the appropriate binary for your platform using `curl` or `Invoke-WebRequest` in PowerShell, make it executable, and move it to a directory on your PATH.
+
+E.g commands:
+
+**macOS (Apple Silicon)**
+
+```bash
+curl -L --header "PRIVATE-TOKEN: <TOKEN>" \
+  "https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/generic/ai-review-cli/<VERSION>/ai-review-macos-arm64" \
+  -o ai-review
+chmod +x ai-review
+sudo mv ai-review /usr/local/bin/
+```
+
+**macOS (Intel)**
+
+```bash
+curl -L --header "PRIVATE-TOKEN: <TOKEN>" \
+  "https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/generic/ai-review-cli/<VERSION>/ai-review-macos-x64" \
+  -o ai-review
+chmod +x ai-review
+sudo mv ai-review /usr/local/bin/
+```
+
+**Linux (x64)**
+
+```bash
+curl -L --header "PRIVATE-TOKEN: <TOKEN>" \
+  "https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/generic/ai-review-cli/<VERSION>/ai-review-linux-x64" \
+  -o ai-review
+chmod +x ai-review
+sudo mv ai-review /usr/local/bin/
+```
+
+**Linux (ARM64)**
+
+```bash
+curl -L --header "PRIVATE-TOKEN: <TOKEN>" \
+  "https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/generic/ai-review-cli/<VERSION>/ai-review-linux-arm64" \
+  -o ai-review
+chmod +x ai-review
+sudo mv ai-review /usr/local/bin/
+```
+
+**Windows (x64)**
+
+```powershell
+Invoke-WebRequest -Uri "https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/generic/ai-review-cli/<VERSION>/ai-review-win-x64.exe" `
+  -Headers @{"PRIVATE-TOKEN" = "<TOKEN>"} `
+  -OutFile "ai-review.exe"
+# Move ai-review.exe to a directory on your PATH
+```
+
+Replace `<TOKEN>` with a GitLab PAT with `read_api` or `read_package_registry` scope, and `<VERSION>` with the desired release version (e.g. `1.2.3`). Available releases are listed on the [releases page](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/-/releases).
+
+### Option C — Local development
 
 Clone the repo and link it globally:
 

@@ -1,3 +1,15 @@
+workflow:
+  rules:
+    # Always run pipelines triggered by a tag (e.g. v1.2.3 created by semantic-release)
+    # Regardless of [skip ci] in the commit message.
+    - if: $CI_COMMIT_TAG
+      when: always
+    # Honour [skip ci] on branch/MR pipelines (prevents infinite loop from
+    # the semantic-release commit that carries [skip ci])
+    - if: $CI_COMMIT_MESSAGE =~ /\[skip ci\]/
+      when: never
+    - when: always
+
 stages:
   - build
   - release
