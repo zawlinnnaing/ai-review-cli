@@ -1,3 +1,9 @@
+## [1.0.4](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/compare/v1.0.3...v1.0.4) (2026-02-27)
+
+### Bug Fixes
+
+* **release:** ensure tag pipeline is triggered after semantic-release ([7057851](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/commit/7057851389a7f3e56d8113412ba0ac77020d81d2))
+
 ## [1.0.3](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/compare/v1.0.2...v1.0.3) (2026-02-27)
 
 ### Bug Fixes
