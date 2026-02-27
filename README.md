@@ -5,8 +5,8 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
 - [ai-review CLI](#ai-review-cli)
   - [Requirements](#requirements)
   - [Installation](#installation)
-    - [Option A — Install from GitLab Package Registry (recommended)](#option-a--install-from-gitlab-package-registry-recommended)
-    - [Option B — Download pre-built binary from GitLab release](#option-b--download-pre-built-binary-from-gitlab-release)
+    - [Option A — Download pre-built binary from GitLab release (recommended)](#option-a--download-pre-built-binary-from-gitlab-release-recommended)
+    - [Option B — Install from GitLab Package Registry](#option-b--install-from-gitlab-package-registry)
     - [Option C — Local development](#option-c--local-development)
   - [Usage](#usage)
     - [Step 1 — Configure credentials (one-time)](#step-1--configure-credentials-one-time)
@@ -30,28 +30,13 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
 
 ## Installation
 
-### Option A — Install from GitLab Package Registry (recommended)
-
-Authenticate once to the project-scoped registry, then install the published package:
-
-```bash
-# Point the @sertiscorp scope to this project registry
-npm config set @sertiscorp:registry https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/npm/
-
-# Authenticate (use a GitLab PAT with read_api or read_package_registry, or CI_JOB_TOKEN in CI)
-npm set //gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/npm/:_authToken <TOKEN>
-
-# Install globally
-npm install -g @sertiscorp/ai-review-cli
-```
-
-### Option B — Download pre-built binary from GitLab release
+### Option A — Download pre-built binary from GitLab release (recommended)
 
 Pre-built binaries are published to the [GitLab releases page](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/-/releases) for every version tag. No Node.js required.
 
 Download the appropriate binary for your platform using `curl` or `Invoke-WebRequest` in PowerShell, make it executable, and move it to a directory on your PATH.
 
-E.g commands:
+> NOTE: If you already downloaded a release binary from Gitlab UI, you don't need to run command to download. Just make it executable and move to PATH. Command must be named `ai-review` (or `ai-review.exe` on Windows) to work correctly with [mr-review](https://gitlab.com/sertiscorp/dev/se-team/agent-skills/-/blob/main/skills/mr-review/SKILL.md) skill.
 
 **macOS (Intel and Apple Silicon)**
 
@@ -95,6 +80,21 @@ Invoke-WebRequest -Uri "https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse
 ```
 
 Replace `<TOKEN>` with a GitLab PAT with `read_api` or `read_package_registry` scope, and `<VERSION>` with the desired release version (e.g. `1.2.3`). Available releases are listed on the [releases page](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/-/releases).
+
+### Option B — Install from GitLab Package Registry
+
+Authenticate once to the project-scoped registry, then install the published package:
+
+```bash
+# Point the @sertiscorp scope to this project registry
+npm config set @sertiscorp:registry https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/npm/
+
+# Authenticate (use a GitLab PAT with read_api or read_package_registry, or CI_JOB_TOKEN in CI)
+npm set //gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/npm/:_authToken <TOKEN>
+
+# Install globally
+npm install -g @sertiscorp/ai-review-cli
+```
 
 ### Option C — Local development
 
