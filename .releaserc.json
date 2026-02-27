@@ -49,8 +49,7 @@
     [
       "@semantic-release/gitlab",
       {
-        "failComment": false,
-        "assets": ["dist/"]
+        "failComment": false
       }
     ]
   ]

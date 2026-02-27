@@ -6,6 +6,10 @@ dist/
 build/
 out/
 
+# Binary artifacts from pkg
+artifacts/
+.pkg-cache/
+
 ai-review-output/
 
 # TypeScript cache

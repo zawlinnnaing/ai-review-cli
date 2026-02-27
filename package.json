@@ -17,7 +17,8 @@
     "dev": "tsx src/cli/index.ts",
     "start": "node dist/cli/index.js",
     "lint": "tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "package": "mkdir -p artifacts && pkg dist/cli/index.js --targets node20-linux-x64 --output artifacts/ai-review-linux-x64 && pkg dist/cli/index.js --targets node20-linux-arm64 --output artifacts/ai-review-linux-arm64 && pkg dist/cli/index.js --targets node20-macos-x64 --output artifacts/ai-review-macos-x64 && pkg dist/cli/index.js --targets node20-macos-arm64 --output artifacts/ai-review-macos-arm64 && pkg dist/cli/index.js --targets node20-win-x64 --output artifacts/ai-review-win-x64.exe"
   },
   "dependencies": {
     "axios": "^1.6.0",
@@ -26,12 +27,13 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
-    "@types/diff": "^7.0.2",
-    "@types/node": "^20.19.33",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/gitlab": "^13.0.3",
     "@semantic-release/npm": "^12.0.1",
+    "@types/diff": "^7.0.2",
+    "@types/node": "^20.19.33",
+    "@yao-pkg/pkg": "^6.14.1",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "prettier": "^3.8.1",
     "semantic-release": "^24.0.0",
@@ -40,5 +42,10 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "overrides": {
+    "@yao-pkg/pkg": {
+      "into-stream": "6"
+    }
   }
 }
