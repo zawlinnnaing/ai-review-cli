@@ -1,3 +1,9 @@
+## [1.0.2](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/compare/v1.0.1...v1.0.2) (2026-02-27)
+
+### Bug Fixes
+
+* create binary ci ([dd6f33e](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/commit/dd6f33ef1c813713a1109994948b9002da36b5fd))
+
 ## [1.0.1](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/compare/v1.0.0...v1.0.1) (2026-02-26)
 
 ### Bug Fixes
