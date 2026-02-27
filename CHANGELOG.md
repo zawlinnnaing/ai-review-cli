@@ -1,3 +1,9 @@
+## [1.0.7](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/compare/v1.0.6...v1.0.7) (2026-02-27)
+
+### Bug Fixes
+
+* **package:** add ldid installation for macOS code signing ([b41ac8b](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/commit/b41ac8b0eea90134e48671ffdeafb258bd084c3d))
+
 ## [1.0.6](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/compare/v1.0.5...v1.0.6) (2026-02-27)
 
 ### Bug Fixes
