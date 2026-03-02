@@ -93,7 +93,7 @@ npm config set @sertiscorp:registry https://gitlab.com/api/v4/projects/sertiscor
 npm set //gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse-team%2Fai-review-cli/packages/npm/:_authToken <TOKEN>
 
 # Install globally
-npm install -g @sertiscorp/ai-review-cli
+npm install -g @zawlinnnaing/ai-review-cli
 ```
 
 ### Option C — Local development
@@ -109,7 +109,7 @@ npm link        # makes `ai-review` available globally
 To uninstall:
 
 ```bash
-npm uninstall -g @sertiscorp/ai-review-cli
+npm uninstall -g @zawlinnnaing/ai-review-cli
 ```
 
 Run directly without building:
