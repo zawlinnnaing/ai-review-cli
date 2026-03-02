@@ -119,7 +119,7 @@ This repository ships a reusable AI agent skill that teaches your agent how to r
 Install it globally or into your current project with:
 
 ```bash
-npx skills add https://github.com/zawlinnnaing/ai-review-cli
+npx skills add https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli
 ```
 
 Once installed, your agent can invoke the skill to check credentials, fetch MR context, generate a structured review, validate it, and optionally post comments — all in one step.
