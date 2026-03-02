@@ -8,6 +8,7 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
     - [Option A — Download pre-built binary from GitHub release (recommended)](#option-a--download-pre-built-binary-from-github-release-recommended)
     - [Option B — Install from npm registry](#option-b--install-from-npm-registry)
     - [Option C — Local development](#option-c--local-development)
+  - [Agent skill](#agent-skill)
   - [Usage](#usage)
     - [Step 1 — Configure credentials (one-time)](#step-1--configure-credentials-one-time)
     - [Step 2 — Fetch MR context](#step-2--fetch-mr-context)
@@ -106,6 +107,20 @@ Run directly without building:
 ```bash
 npx tsx src/cli/index.ts <command>
 ```
+
+---
+
+## Agent skill
+
+This repository ships a reusable AI agent skill that teaches your agent how to run the full review workflow automatically. The full skill description is in [`SKILL.md`](./SKILL.md).
+
+Install it globally or into your current project with:
+
+```bash
+npx skills add https://github.com/zawlinnnaing/ai-review-cli
+```
+
+Once installed, your agent can invoke the skill to check credentials, fetch MR context, generate a structured review, validate it, and optionally post comments — all in one step.
 
 ---
 
