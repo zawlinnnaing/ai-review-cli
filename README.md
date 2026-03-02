@@ -32,7 +32,7 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
 
 ### Option A — Download pre-built binary from GitLab release (recommended)
 
-Pre-built binaries are published to the [GitLab releases page](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/-/releases) for every version tag. No Node.js required.
+Pre-built binaries are published to the [GitLab releases page](https://github.com/zawlinnnaing/ai-review-cli/-/releases) for every version tag. No Node.js required.
 
 Download the appropriate binary for your platform using `curl` or `Invoke-WebRequest` in PowerShell, make it executable, and move it to a directory on your PATH.
 
@@ -79,7 +79,7 @@ Invoke-WebRequest -Uri "https://gitlab.com/api/v4/projects/sertiscorp%2Fdev%2Fse
 # Move ai-review.exe to a directory on your PATH
 ```
 
-Replace `<TOKEN>` with a GitLab PAT with `read_api` or `read_package_registry` scope, and `<VERSION>` with the desired release version (e.g. `1.2.3`). Available releases are listed on the [releases page](https://gitlab.com/sertiscorp/dev/se-team/ai-review-cli/-/releases).
+Replace `<TOKEN>` with a GitLab PAT with `read_api` or `read_package_registry` scope, and `<VERSION>` with the desired release version (e.g. `1.2.3`). Available releases are listed on the [releases page](https://github.com/zawlinnnaing/ai-review-cli/-/releases).
 
 ### Option B — Install from GitLab Package Registry
 
