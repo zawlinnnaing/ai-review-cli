@@ -64,6 +64,7 @@ Write the review to `~/.ai-review/review-output.json`:
 
 ```json
 {
+  "description": "A concise Markdown summary of the MR: what changed, why, and any significant design decisions or risks observed.",
   "comments": [
     {
       "file": "path/to/file.ts",
@@ -74,6 +75,11 @@ Write the review to `~/.ai-review/review-output.json`:
   ]
 }
 ```
+
+The `description` field must always be populated. It should be a Markdown-formatted summary covering:
+- **What changed** — high-level overview of the modifications and provide sequence diagram if it helps explain complex interactions
+- **Why** — inferred intent or purpose of the MR
+- **Risks / notable observations** — anything reviewers should pay special attention to
 
 Severity levels:
 
@@ -122,6 +128,22 @@ ai-review post-comments <MR_URL> --input ~/.ai-review/review-output.json --sever
 ```
 
 Report how many were posted and how many skipped.
+
+### Step 9 — Ask whether to update MR description
+
+Ask the user:
+
+> The review includes an MR description summary. Do you want to post it as the MR description on GitLab? (y/N)
+
+**Default is No — do not update the description unless the user explicitly answers `y` or `yes`.**
+
+If yes:
+
+```bash
+ai-review post-description <MR_URL> --input ~/.ai-review/review-output.json
+```
+
+Confirm success or surface any error returned.
 
 ## Notes
 

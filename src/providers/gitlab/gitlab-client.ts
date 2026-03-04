@@ -63,6 +63,19 @@ export class GitLabClient {
     }
   }
 
+  async updateMergeRequestDescription(
+    projectId: string,
+    mrIid: string,
+    description: string,
+  ): Promise<unknown> {
+    const encodedProjectId = encodeURIComponent(projectId);
+    const response = await this.client.put(
+      `/projects/${encodedProjectId}/merge_requests/${mrIid}`,
+      { description },
+    );
+    return response.data;
+  }
+
   async postDiscussion(
     projectId: string,
     mrIid: string,

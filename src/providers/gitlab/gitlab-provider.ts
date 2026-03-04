@@ -133,6 +133,14 @@ export class GitLabProvider implements GitProvider {
       );
     }
   }
+
+  async updateDescription(
+    projectId: string,
+    mrId: string,
+    description: string,
+  ): Promise<void> {
+    await this.client.updateMergeRequestDescription(projectId, mrId, description);
+  }
 }
 
 function isBinaryOrExcluded(change: RawChange): boolean {

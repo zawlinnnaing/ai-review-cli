@@ -30,4 +30,10 @@ export interface GitProvider {
     mrId: string,
     comments: ReviewComment[],
   ): Promise<void>;
+
+  updateDescription(
+    projectId: string,
+    mrId: string,
+    description: string,
+  ): Promise<void>;
 }
