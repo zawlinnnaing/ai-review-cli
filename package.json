@@ -1,6 +1,6 @@
 {
   "name": "@zawlinnnaing/ai-review-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "AI-powered code review CLI for GitLab Merge Requests",
   "main": "dist/cli/index.js",
   "bin": {
