@@ -3,15 +3,13 @@ name: CI/CD
 on:
   push:
     branches: ["**"]
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
   pull_request:
     branches: [main]
 
-# Prevent concurrent release or package runs; cancel in-progress builds on new pushes.
+# Cancel in-progress runs on the same branch when a newer push arrives.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+  cancel-in-progress: true
 
 jobs:
   # ─── Build & Lint ────────────────────────────────────────────────────────────
@@ -19,7 +17,7 @@ jobs:
   build:
     name: Build & Lint
     runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'"
+    if: "github.ref != 'refs/heads/main'"
     steps:
       - uses: actions/checkout@v4
 
@@ -69,45 +67,3 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
 
-  # ─── Binary packaging ────────────────────────────────────────────────────────
-  # Runs only on version tags created by semantic-release (e.g. v1.2.3).
-  # At this point package.json already contains the new version because
-  # @semantic-release/git committed it before the tag was created.
-  #
-  # Binaries are built and uploaded directly as GitHub release assets.
-  package:
-    name: Package Binaries
-    runs-on: ubuntu-latest
-    if: "startsWith(github.ref, 'refs/tags/')"
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install ldid for macOS binary signing
-        run: |
-          ARCH=$(uname -m)
-          case "$ARCH" in
-            x86_64)  LDID_ARCH="x86_64" ;;
-            aarch64) LDID_ARCH="aarch64" ;;
-            *) echo "Unsupported architecture: $ARCH" && exit 1 ;;
-          esac
-          curl -fsSL "https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_linux_${LDID_ARCH}" -o /usr/local/bin/ldid
-          chmod +x /usr/local/bin/ldid
-
-      - run: npm ci
-      - run: npm run build
-      - run: npm run package
-
-      - name: Upload release assets
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          gh release upload ${{ github.ref_name }} \
-            artifacts/ai-review-linux-x64 \
-            artifacts/ai-review-linux-arm64 \
-            artifacts/ai-review-macos-x64 \
-            artifacts/ai-review-win-x64.exe

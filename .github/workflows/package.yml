@@ -1,0 +1,87 @@
+name: Package Binaries
+
+# Triggered after the CI/CD workflow completes on main so that it runs
+# even when the tag's target commit contains "[skip ci]" (which would cause
+# a plain `push: tags:` trigger to be skipped by GitHub Actions).
+on:
+  workflow_run:
+    workflows: ["CI/CD"]
+    types: [completed]
+    branches: [main]
+
+# Only one packaging run at a time; never cancel in progress.
+concurrency:
+  group: package-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  # ─── Resolve the semver tag ──────────────────────────────────────────────────
+  # Check whether semantic-release created a version tag for the commit that
+  # just finished the CI/CD workflow. If not, every subsequent job is skipped.
+  resolve-tag:
+    name: Resolve release tag
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Find semver tag pointing at this commit
+        id: tag
+        run: |
+          git fetch --tags
+          TAG=$(git tag --points-at "${{ github.event.workflow_run.head_sha }}" \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | head -n1)
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          if [ -z "$TAG" ]; then
+            echo "No semver tag found for ${{ github.event.workflow_run.head_sha }} – skipping."
+          else
+            echo "Resolved tag: $TAG"
+          fi
+
+  # ─── Binary packaging ────────────────────────────────────────────────────────
+  # Builds four platform binaries and uploads them as GitHub release assets.
+  package:
+    name: Package Binaries
+    needs: resolve-tag
+    runs-on: ubuntu-latest
+    if: ${{ needs.resolve-tag.outputs.tag != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve-tag.outputs.tag }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install ldid for macOS binary signing
+        run: |
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            x86_64)  LDID_ARCH="x86_64" ;;
+            aarch64) LDID_ARCH="aarch64" ;;
+            *) echo "Unsupported architecture: $ARCH" && exit 1 ;;
+          esac
+          curl -fsSL "https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_linux_${LDID_ARCH}" -o /usr/local/bin/ldid
+          chmod +x /usr/local/bin/ldid
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run package
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh release upload ${{ needs.resolve-tag.outputs.tag }} \
+            artifacts/ai-review-linux-x64 \
+            artifacts/ai-review-linux-arm64 \
+            artifacts/ai-review-macos-x64 \
+            artifacts/ai-review-win-x64.exe
