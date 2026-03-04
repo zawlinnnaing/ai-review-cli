@@ -9,6 +9,7 @@ export const ReviewCommentSchema = z.object({
 
 export const ReviewSchema = z.object({
   comments: z.array(ReviewCommentSchema),
+  description: z.string().optional(),
 });
 
 export type ReviewComment = z.infer<typeof ReviewCommentSchema>;
