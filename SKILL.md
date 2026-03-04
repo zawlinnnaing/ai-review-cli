@@ -111,7 +111,9 @@ Ask the user which minimum severity to post:
 1. `suggestion` — all comments
 2. `warning` — warnings and critical only
 3. `critical` — critical only
-4. No — skip
+4. No — skip (default)
+
+**If the user provides no input or presses Enter without selecting an option, default to option 4 (skip) and do not post any comments.**
 
 If 1–3:
 
