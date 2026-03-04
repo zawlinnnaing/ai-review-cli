@@ -6,6 +6,10 @@
   "bin": {
     "ai-review": "./dist/cli/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zawlinnnaing/ai-review-cli.git"
+  },
   "files": [
     "dist/",
     "README.md"
