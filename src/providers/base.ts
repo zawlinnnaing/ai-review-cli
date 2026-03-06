@@ -36,4 +36,11 @@ export interface GitProvider {
     mrId: string,
     description: string,
   ): Promise<void>;
+
+  createMergeRequest(
+    projectId: string,
+    sourceBranch: string,
+    targetBranch: string,
+    title: string,
+  ): Promise<MergeRequest>;
 }

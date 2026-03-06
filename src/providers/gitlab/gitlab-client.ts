@@ -93,4 +93,18 @@ export class GitLabClient {
     );
     return response.data;
   }
+
+  async createMergeRequest(
+    projectId: string,
+    sourceBranch: string,
+    targetBranch: string,
+    title: string,
+  ): Promise<unknown> {
+    const encodedProjectId = encodeURIComponent(projectId);
+    const response = await this.client.post(
+      `/projects/${encodedProjectId}/merge_requests`,
+      { source_branch: sourceBranch, target_branch: targetBranch, title },
+    );
+    return response.data;
+  }
 }

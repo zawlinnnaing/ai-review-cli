@@ -141,6 +141,29 @@ export class GitLabProvider implements GitProvider {
   ): Promise<void> {
     await this.client.updateMergeRequestDescription(projectId, mrId, description);
   }
+
+  async createMergeRequest(
+    projectId: string,
+    sourceBranch: string,
+    targetBranch: string,
+    title: string,
+  ): Promise<MergeRequest> {
+    const raw = (await this.client.createMergeRequest(
+      projectId,
+      sourceBranch,
+      targetBranch,
+      title,
+    )) as RawMergeRequest;
+
+    return {
+      id: raw.id,
+      iid: raw.iid,
+      title: raw.title,
+      description: raw.description ?? '',
+      sourceBranch: raw.source_branch,
+      targetBranch: raw.target_branch,
+    };
+  }
 }
 
 function isBinaryOrExcluded(change: RawChange): boolean {

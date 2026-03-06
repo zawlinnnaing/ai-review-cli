@@ -6,6 +6,7 @@ import { registerGetContextCommand } from './commands/get-context';
 import { registerValidateOutputCommand } from './commands/validate-output';
 import { registerPostCommentsCommand } from './commands/post-comments';
 import { registerPostDescriptionCommand } from './commands/post-description';
+import { registerCreateMrCommand } from './commands/create-mr';
 import packageJson from '../../package.json';
 
 const program = new Command();
@@ -22,5 +23,6 @@ registerGetContextCommand(program);
 registerValidateOutputCommand(program);
 registerPostCommentsCommand(program);
 registerPostDescriptionCommand(program);
+registerCreateMrCommand(program);
 
 program.parse(process.argv);
