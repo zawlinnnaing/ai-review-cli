@@ -79,9 +79,9 @@ Write the review to `~/.ai-review/review-output.json`:
 
 The `description` field must always be populated. It should be a Markdown-formatted summary covering:
 
-- **What changed** — high-level overview of the modifications and provide sequence diagram if it helps explain complex interactions
-- **Why** — inferred intent or purpose of the MR
-- **Risks / notable observations** — anything reviewers should pay special attention to
+- **What changed** — a high-level summary of the modifications
+- **Why** — inferred intent or purpose of the changes
+- **Notable details** — any significant design decisions, potential risks, or things reviewers should know
 
 Severity levels:
 
