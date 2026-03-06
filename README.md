@@ -13,6 +13,7 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
     - [Step 3 — Review with your AI agent](#step-3--review-with-your-ai-agent)
     - [Step 4 — Validate the review output](#step-4--validate-the-review-output)
     - [Step 5 — Post comments to the MR](#step-5--post-comments-to-the-mr)
+    - [Step 6 — Post MR description](#step-6--post-mr-description)
     - [How it works end-to-end](#how-it-works-end-to-end)
   - [Commands](#commands)
     - [Check CLI version](#check-cli-version)
@@ -20,7 +21,11 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
     - [Fetch MR context](#fetch-mr-context)
     - [Validate review output](#validate-review-output)
     - [Post review comments](#post-review-comments)
+    - [Post MR description](#post-mr-description)
   - [Local Development](#local-development)
+    - [Requirements](#requirements)
+    - [Install dependencies](#install-dependencies)
+    - [Run in development mode](#run-in-development-mode)
   - [Roadmap](#roadmap)
 
 ## Installation
@@ -167,6 +172,18 @@ ai-review post-comments "<MR_URL>" --input review.json --severity warning
 ```
 
 Posts each comment from the validated review JSON as an inline discussion on the GitLab MR.
+
+### Step 6 — Post MR description
+
+```bash
+# Post a description directly
+ai-review post-description "<MR_URL>" --text "My description"
+
+# Or read the description from a review JSON file
+ai-review post-description "<MR_URL>" --input review-output.json
+```
+
+Updates the MR description on GitLab. Useful when your AI agent generates a structured summary as part of the review output.
 
 ---
 
@@ -379,6 +396,44 @@ On failure, prints a structured error to stderr and exits with code 1:
 
 ```json
 { "error": "POST_FAILED", "message": "Request failed with status code 422" }
+```
+
+---
+
+### Post MR description
+
+```bash
+ai-review post-description <MR_URL> [--text <string>] [--input <file>]
+```
+
+Updates the description of a GitLab MR. Credentials are resolved automatically from the URL's domain.
+
+```bash
+# Post a description as a plain string
+ai-review post-description https://gitlab.com/group/repo/-/merge_requests/123 --text "## Summary\nThis MR refactors the auth module."
+
+# Read the description from a review JSON file (looks for a \"description\" key)
+ai-review post-description https://gitlab.com/group/repo/-/merge_requests/123 --input review-output.json
+
+# Default file when --input is omitted
+ai-review post-description https://gitlab.com/group/repo/-/merge_requests/123
+```
+
+| Option           | Description                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------------- |
+| `--text <string>` | Description text to post directly                                                       |
+| `--input <file>` | Path to a JSON file with a `"description"` key (defaults to `review-output.json`)       |
+
+On success, prints:
+
+```
+MR description updated successfully.
+```
+
+On failure, prints a structured error to stderr and exits with code 1:
+
+```json
+{ "error": "POST_FAILED", "message": "..." }
 ```
 
 ---

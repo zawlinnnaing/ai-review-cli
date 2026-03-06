@@ -149,4 +149,3 @@ Confirm success or surface any error returned.
 
 - All output files live under `~/.ai-review/` and are overwritten on each run.
 - Credentials in `~/.ai-review/credentials.json` are keyed by hostname; multiple GitLab instances are supported.
-- See [references/REFERENCE.md](references/REFERENCE.md) for CLI command details and error code reference.
