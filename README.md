@@ -91,12 +91,17 @@ npm install -g @zawlinnnaing/ai-review-cli
 
 > Note: CLI must be installed via Option A or B for the skill to work correctly with the expected command name `ai-review`.
 
-This repository ships a reusable AI agent skill that teaches your agent how to run the full review workflow automatically. The full skill description is in [`SKILL.md`](./SKILL.md).
+This repository ships reusable AI agent skills under the [`skills/`](./skills) directory:
 
-Install it globally or into your current project with:
+| Skill | Description |
+|-------|-------------|
+| [`skills/mr-review`](./skills/mr-review/SKILL.md) | Review a GitLab MR: fetch context, analyse, validate, and optionally post inline comments |
+
+Install a skill globally or into your current project with:
 
 ```bash
-npx skills add https://github.com/zawlinnnaing/ai-review-cli
+# MR review skill
+npx skills add https://github.com/zawlinnnaing/ai-review-cli/skills/mr-review
 ```
 
 Once installed, your agent can invoke the skill to check credentials, fetch MR context, generate a structured review, validate it, and optionally post comments — all in one step.
