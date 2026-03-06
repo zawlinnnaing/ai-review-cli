@@ -22,6 +22,7 @@ A local developer tool that enables AI agents (Claude Code, Cursor, GitHub Copil
     - [Validate review output](#validate-review-output)
     - [Post review comments](#post-review-comments)
     - [Post MR description](#post-mr-description)
+    - [Create MR](#create-mr)
   - [Local Development](#local-development)
     - [Requirements](#requirements)
     - [Install dependencies](#install-dependencies)
@@ -439,6 +440,52 @@ On failure, prints a structured error to stderr and exits with code 1:
 
 ```json
 { "error": "POST_FAILED", "message": "..." }
+```
+
+---
+
+### Create MR
+
+```bash
+ai-review create-mr <REPO_URL> <SOURCE_BRANCH> <TARGET_BRANCH> [--title <string>]
+```
+
+Creates a new Merge Request on GitLab. The repo URL is used to resolve the domain, project path, and credentials — if no credentials are configured for that hostname the command fails immediately with a structured error.
+
+```bash
+# Create an MR from feature-branch into main
+ai-review create-mr https://gitlab.com/group/repo feature-branch main
+
+# Provide a custom title
+ai-review create-mr https://gitlab.com/group/repo feature-branch main --title "feat: add login flow"
+
+# Self-hosted instance
+ai-review create-mr https://gitlab.mycompany.com/group/repo feature-branch main
+```
+
+| Argument / Option     | Description                                                                 |
+| --------------------- | --------------------------------------------------------------------------- |
+| `<REPO_URL>`          | Full HTTPS URL of the repository (`.git` suffix optional)                   |
+| `<SOURCE_BRANCH>`     | Branch to merge from                                                        |
+| `<TARGET_BRANCH>`     | Branch to merge into                                                        |
+| `--title <string>`    | MR title (defaults to `Merge <source> into <target>`)                       |
+
+On success, prints the new MR URL and its JSON representation:
+
+```
+Merge request created: https://gitlab.com/group/repo/-/merge_requests/42
+{
+  "id": 1001,
+  "iid": 42,
+  "title": "Merge feature-branch into main",
+  ...
+}
+```
+
+On failure, prints a structured error to stderr and exits with code 1:
+
+```json
+{ "error": "CREATE_MR_FAILED", "message": "No GitLab credentials configured for domain \"gitlab.com\". Run: ai-review configure gitlab" }
 ```
 
 ---
