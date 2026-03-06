@@ -59,6 +59,3 @@ All errors are printed as structured JSON to stderr:
 }
 ```
 
-### Agent skill
-
-A Claude Code custom command lives at `.claude/commands/review-mr.md`. Invoking `/review-mr [MR_URL]` runs the full review workflow (check config → fetch context → generate review → validate → prompt to post).
